@@ -1,9 +1,9 @@
 # Setup
-Setup virtual environment.
+Setup python virtual environment.
 
 Install dependencies: ```pip install -r requirements.txt```
 
-Create .env and add Open AI key: "OPENAI_API_KEY="
+Create .env and add Open AI key: ```OPENAI_API_KEY=[your_key]```
 You may need to add payment method and credits. If you need to add
 credits add something very low since usage will likely be minimal. 
 
