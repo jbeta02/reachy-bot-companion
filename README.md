@@ -1,5 +1,9 @@
 # Setup
-install dependencies: ```pip install -r requirements.txt```
+Setup virtual environment.
+Install dependencies: ```pip install -r requirements.txt```
+Create .env and add Open AI key: "OPENAI_API_KEY="
+You may need to add payment method and credits. If you need to add
+credits add something very low since usage will likely be minimal. 
 
 Note: Tested with Python 3.10 on Ubuntu 22.04
 
@@ -7,7 +11,7 @@ Note: Tested with Python 3.10 on Ubuntu 22.04
 From home directory run: ```python scripts/robot_head.py```
 
 # Test Run
-test run output: 
+Test run output: 
 ```
 [SENSE] running
 audio: ok
