@@ -3,12 +3,13 @@ from langchain_openai import ChatOpenAI
 from typing import TypedDict
 from dotenv import load_dotenv
 import os
+from dummy_speak import DummySpeak
 
+############################# setup llm ###################################
 load_dotenv()
-
-api_key = os.getenv("OPENAI_API_KEY")
 llm = ChatOpenAI(model="gpt-4o-mini")
 
+############################# setup global variables ###################################
 robot_name = "Candle"
 life_goal = f"""
     Your name is "{robot_name}". Your is goal is to act as a robot companion that will 
@@ -34,16 +35,19 @@ life_goal = f"""
     Below or instructions on your input and output options. 
 """
 
+speak_action = DummySpeak()
+# speak_action2 = DummySpeak()
+# speak_action3 = DummySpeak()
+
+actions = []
+actions.append(speak_action)
+# actions.append(speak_action2)
+# actions.append(speak_action3)
 
 class RobotState(TypedDict):
     # captured observations
     audio: str
     vision: str
-
-    # based on observations
-    # hoping to use as more persistant memory
-    mission: str
-    distractions: str
 
     # action to be perormed
     action: str
@@ -51,7 +55,7 @@ class RobotState(TypedDict):
     # action performed
     response: str
 
-
+############################# create nodes ###################################
 def sense(state: RobotState):
     print("[SENSE] running")
     audio_result = input("audio: ") # "ok"
@@ -65,6 +69,13 @@ def sense(state: RobotState):
 
 def think(state: RobotState):
     print("[THINK] running")
+
+    # build action options string
+    list_actions = []
+    for action in actions:
+        list_actions.append(f"- {action.name}:{action.type}\n")
+    actions_string = "".join(list_actions)
+
     prompt = f"""
 
     {life_goal}
@@ -74,8 +85,7 @@ def think(state: RobotState):
     
     Decide what to do next.
     Choose ONE action option:
-    - speak:<text>
-    - move:<type: node, shake head, dance>
+    {actions_string}
     - none
     
     Respond in format: [action]: [text]
@@ -96,26 +106,19 @@ def think(state: RobotState):
 def act(state: RobotState):
     print("[ACT] running")
     action = state["action"]
-
-    if action.startswith("speak:"):
-        text = action.replace("speak:", "")
-        print(f"[ACT] Robot says: {text}")
-        return {"response": text}
-
-    elif action.startswith("move:"):
-        type = action.replace("move:", "")
-        print(f"[ACT] Moving {type}")
-        return {"response": f"Moved {type}"}
-
     
-    elif action == "none":
-        print(f"[ACT] robot is idle, action is none")
-        return {"response": "Idle"}
+    for action_option in actions:
+        if action.startswith(action_option.name + ":"):
+            response = action.replace(action_option.name + ":", "")
+            print(f"[ACT] {action_option.tag}{response}")
+            return {"action": response}
 
     print("[ACT] No valid action detected")
     return {"response": "Idle"}
 
 
+
+############################# build graph ###################################
 graph = StateGraph(RobotState)
 
 graph.add_node("sense", sense)
@@ -133,8 +136,6 @@ app = graph.compile()
 state = {
     "audio": "",
     "vision": "",
-    "mission": "Stand by, look for distractions",
-    # "distractions": "",
     "action": "",
     "response": "",
 }
